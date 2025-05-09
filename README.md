@@ -58,6 +58,10 @@ This project aims to restore clarity in distorted images using a U-Net based dee
 - **Validation Loss:** 0.0198
 - **Training Loss:** 0.0205
 - **Best Validation SSIM:** 0.9261
+  
+![LossCurve](Training&ValidationLoss(1024).png?raw=true "channel-1024")
+![PSNR](PSNR.png?raw=true "channel-1024")
+![PSNR](SSIM.png?raw=true "channel-1024")
 
 ### ⚙️ Technical Considerations
 - Reduced batch size to manage GPU memory constraints.
@@ -68,7 +72,16 @@ This project aims to restore clarity in distorted images using a U-Net based dee
 
 ## 🖼️ Outputs
 The model successfully reconstructs fine details and restores high-frequency components in distorted images, delivering a significant visual and numerical performance improvement over baseline CNN and GAN methods.
-![Deblurred Output](images/512-1.png)
+
+Channel-512:
+![Output](512-1.png?raw=true "channel-512") 
+![Output](512-2.png?raw=true "channel-512")
+
+Channel-1024:
+![Output](1024-1.png?raw=true "channel-1024")
+![Output](1024-2.png?raw=true "channel-1024")
+
+
 ---
 
 ## 📈 Training & Validation Curves
