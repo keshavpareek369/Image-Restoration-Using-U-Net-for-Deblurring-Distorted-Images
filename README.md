@@ -38,6 +38,8 @@ This project aims to restore clarity in distorted images using a U-Net based dee
 ## ✅ Final Model: U-Net
 
 ### 📐 Architecture
+![Architecture](U-net.png?raw=true "U-net_Architecture")
+
 ### 🔧 Bottleneck Parameters
 - In the U-Net architecture, two configurations were tested for the bottleneck layer:
   - **512 Channels**
