@@ -23,14 +23,14 @@ This project aims to restore clarity in distorted images using a U-Net based dee
 ### 🟠 CNN (Baseline)
 - **Issue:** Lacked fine detail preservation.
 - **PSNR:** 24.84
-- **Total Params:** 83,715
+- **Total Params:** 83,715(83K)
 - **Conclusion:** Poor performance in complex deblurring scenarios.
 
 ### 🔵 GAN
 - **Training Instability**
 - **A_Loss Generator:** 10.9802
 - **A_Loss Discriminator:** 0.3434
-- **Total Parameters:** ~2,075,928
+- **Total Parameters:** ~2,075,928(2M)
 - **Conclusion:** High resource demands and unstable performance.
 
 ---
@@ -51,12 +51,14 @@ This project aims to restore clarity in distorted images using a U-Net based dee
 - Used learning rate scheduling and validation-based model saving.
   
 ### 🧪 Performance-Channel-512
-- **Training Loss:** 0.0230
+-**Total params:** 7,766,051(7.7M)
+-  **Training Loss:** 0.0230
 - **Best Validation PSNR:** 30.85
 - **Best Validation SSIM:** 0.9229
 
 ### 🧪 Performance-channel-1024
-- **Best Validation PSNR:** 30.90
+-**Total params:**31,043,651(3.1cr)
+-  **Best Validation PSNR:** 30.90
 - **Validation Loss:** 0.0198
 - **Training Loss:** 0.0205
 - **Best Validation SSIM:** 0.9261
