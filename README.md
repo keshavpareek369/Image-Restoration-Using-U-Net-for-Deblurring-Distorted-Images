@@ -83,7 +83,7 @@ Two bottleneck configurations were tested:
 | Epochs            | 100 (with early stopping)    |
 | Optimizer         | Adam                         |
 | Initial LR        | 1e-4                         |
-| Batch Size        | 8 (512) / 4 (1024)           |
+| Batch Size        | 8 (512) / 8 (1024)           |
 | Loss Function     | L1 Loss (Mean Absolute Error)|
 | Augmentations     | Flip, Rotation, Brightness   |
 | Validation Metric | PSNR, SSIM                   |
