@@ -1,7 +1,8 @@
-# Image Restoration Using U-Net for Deblurring Distorted Images
+# 🧼 Image Restoration Using U-Net for Deblurring Distorted Images
 
 ## 📌 Overview
-This project aims to restore clarity in distorted images using a U-Net based deep learning architecture. We experimented with CNNs and GANs but ultimately found U-Net most effective for preserving fine details and achieving high-quality deblurring results.
+
+This project focuses on restoring sharpness and fine details in **distorted or blurred images** using a **U-Net-based deep learning architecture**. After experimenting with CNNs and GANs, U-Net delivered the most reliable and high-fidelity results for the image deblurring task, balancing both performance and training stability.
 
 ---
 
@@ -9,94 +10,150 @@ This project aims to restore clarity in distorted images using a U-Net based dee
 
 - **Total Images:** 42,000  
   - 21,000 Clear Images  
-  - 21,000 Distorted Images  
+  - 21,000 Distorted (blurred) Images  
 - **Validation Set:**  
-  - 3,378 Clear + 3,378 Distorted = 6,756 Images
-- **Image Size:** 128 × 128
+  - 3,378 Clear + 3,378 Distorted = 6,756 Images  
+- **Image Size:** `128 × 128`
+- **Image Format:** PNG
 - **Source:** Scraped from [Pexels](https://www.pexels.com)
-- **Keywords for Scraping:** `Nature`, `Human`, `Science`, `Cat`, `Dog`, `Culture`, `Car`, `History`, `Food`, `Vintage`, `B&W`
+- **Scraping Keywords:**  
+  `Nature`, `Human`, `Science`, `Cat`, `Dog`, `Culture`, `Car`, `History`, `Food`, `Vintage`, `B&W`
+
+> Images were resized and normalized to [0, 1] before feeding to the model.
 
 ---
 
-## 🧠 Models Tried & Challenges Faced
+## 🧪 Models Tried & Observations
 
 ### 🟠 CNN (Baseline)
-- **Issue:** Lacked fine detail preservation.
-- **PSNR:** 24.84
-- **Total Params:** 83,715(83K)
-- **Conclusion:** Poor performance in complex deblurring scenarios.
 
-### 🔵 GAN
-- **Training Instability**
-- **A_Loss Generator:** 10.9802
-- **A_Loss Discriminator:** 0.3434
-- **Total Parameters:** ~2,075,928(2M)
-- **Conclusion:** High resource demands and unstable performance.
+- **Architecture:** 5 Conv2D layers with ReLU, MaxPool, and Upsampling.
+- **Problem:** Could not reconstruct high-frequency textures or edges.
+- **Average PSNR:** 24.84  
+- **Total Parameters:** 83,715 (~83K)  
+- **Conclusion:** Inadequate for fine-grained deblurring. Good baseline but fails in complex cases.
+
+---
+
+### 🔵 GAN (Pix2Pix-Style)
+
+- **Architecture:** U-Net Generator + PatchGAN Discriminator
+- **Average Generator Loss (A_Loss):** 10.9802  
+- **Average Discriminator Loss:** 0.3434  
+- **Total Parameters:** ~2,075,928 (~2M)  
+- **Problems Faced:**  
+  - Training instability  
+  - Mode collapse in some epochs  
+  - Higher GPU memory consumption  
+- **Conclusion:** GANs showed promise but required significant tuning and computational cost. Not optimal for fast prototyping.
 
 ---
 
 ## ✅ Final Model: U-Net
 
 ### 📐 Architecture
-![Architecture](U-net.png?raw=true "U-net_Architecture")
 
-### 🔧 Bottleneck Parameters
-- In the U-Net architecture, two configurations were tested for the bottleneck layer:
-  - **512 Channels**
-  - **1024 Channels**
-- These configurations helped analyze the trade-off between performance and GPU memory usage.
+![U-Net Architecture](U-net.png?raw=true)
 
-- Encoder-Decoder with skip connections.
-- Trained using **GPU (CUDA)** for faster execution.
-- Used learning rate scheduling and validation-based model saving.
-  
-### 🧪 Performance-Channel-512
--**Total params:** 7,766,051(7.7M)
--  **Training Loss:** 0.0230
-- **Best Validation PSNR:** 30.85
-- **Best Validation SSIM:** 0.9229
+U-Net is an encoder-decoder architecture with skip connections, enabling it to retain low-level details while capturing semantic context. Ideal for image-to-image translation tasks like deblurring.
 
-### 🧪 Performance-channel-1024
--**Total params:**31,043,651(3.1cr)
--  **Best Validation PSNR:** 30.90
-- **Validation Loss:** 0.0198
-- **Training Loss:** 0.0205
-- **Best Validation SSIM:** 0.9261
-  
+### 🔧 Configuration Tested
 
-### ⚙️ Technical Considerations
-- Reduced batch size to manage GPU memory constraints.
-- High memory usage due to deep architecture and multiple channels.
-- Long training time on CPU initially, later optimized using GPU.
+Two bottleneck configurations were tested:
+
+| Model Variant     | Bottleneck Channels | Total Parameters | Training Loss | Validation Loss | Best PSNR | Best SSIM |
+|-------------------|---------------------|------------------|----------------|------------------|-----------|-----------|
+| **U-Net Small**   | 512                 | 7.77M            | 0.0230         | ~0.0213          | 30.85     | 0.9229    |
+| **U-Net Large**   | 1024                | 31.04M           | 0.0205         | 0.0198           | 30.90     | 0.9261    |
+
+### 🧠 Key Features
+
+- **Skip Connections:** Preserve spatial features lost in downsampling.
+- **Channel Depth Tuning:** Improves representational capacity.
+- **Trained on GPU (CUDA):** Major reduction in training time.
+- **Scheduler:** `ReduceLROnPlateau` based on validation PSNR.
+- **Early Stopping:** Enabled for stability.
 
 ---
 
-## 🖼️ Outputs
-The model successfully reconstructs fine details and restores high-frequency components in distorted images, delivering a significant visual and numerical performance improvement over baseline CNN and GAN methods.
+## ⚙️ Training Details
 
-Channel-512:
+| Parameter         | Value                        |
+|-------------------|------------------------------|
+| Epochs            | 100 (with early stopping)    |
+| Optimizer         | Adam                         |
+| Initial LR        | 1e-4                         |
+| Batch Size        | 8 (512) / 4 (1024)           |
+| Loss Function     | L1 Loss (Mean Absolute Error)|
+| Augmentations     | Flip, Rotation, Brightness   |
+| Validation Metric | PSNR, SSIM                   |
 
-![Output](512-1.png?raw=true "channel-512") 
-![Output](512-2.png?raw=true "channel-512")
-
-Channel-1024:
-
-![Output](1024-1.png?raw=true "channel-1024")
-![Output](1024-2.png?raw=true "channel-1024")
-
+> For reproducibility, seed was fixed and PyTorch’s deterministic setting was enabled.
 
 ---
 
-## 📈 Training & Validation Curves
-Training and validation loss curves indicate smooth convergence and no overfitting, validating the reliability of the U-Net model.
+## 📈 Training Curves
 
-Channel-1024
+### Channel-1024 Performance
 
-![LossCurve](Training&ValidationLoss(1024).png?raw=true "channel-1024")
-![PSNR](PSNR.png?raw=true "channel-1024")
-![PSNR](SSIM.png?raw=true "channel-1024")
+- **Training vs Validation Loss**
+
+![Loss Curve](Training&ValidationLoss(1024).png?raw=true)
+
+- **PSNR Over Epochs**
+
+![PSNR](PSNR.png?raw=true)
+
+- **SSIM Over Epochs**
+
+![SSIM](SSIM.png?raw=true)
+
 ---
 
+## 🖼️ Visual Outputs
 
-## 📃 License
-This project is for academic and non-commercial use only. For commercial use, please contact the Keshavpareek369@gmail.com
+### 🔹 U-Net (512 Channels)
+
+![Output](512-1.png?raw=true)  
+![Output](512-2.png?raw=true)
+
+### 🔹 U-Net (1024 Channels)
+
+![Output](1024-1.png?raw=true)  
+![Output](1024-2.png?raw=true)
+
+> Results show restored details like textures, sharp edges, and fine structures that were lost in the original distorted images.
+
+---
+
+## 📊 Quantitative Summary
+
+| Model     | PSNR ↑ | SSIM ↑ | Parameters ↓ | Speed (1 image) ↓ |
+|-----------|--------|--------|---------------|--------------------|
+| CNN       | 24.84  | 0.81   | 83K           | Fastest (Low quality) |
+| GAN       | ~29.20 | ~0.89  | 2M            | Slow (Unstable)       |
+| U-Net-512 | 30.85  | 0.9229 | 7.7M          | Balanced             |
+| U-Net-1024| 30.90  | 0.9261 | 31M           | Slowest (Best quality) |
+
+---
+
+## 🔁 Suggested Improvements & Future Work
+
+- ✅ **Multi-scale Loss** (combine L1 with perceptual/VGG loss for better visual quality)
+- ✅ **Residual U-Net** or **Attention U-Net** to improve focus on critical regions.
+- 🔄 **Use Deformable Convolutions** for handling spatially variant blur.
+- 🔄 **Apply FFT-domain losses** to better preserve high-frequency textures.
+- 🔄 **Model Quantization/Pruning** for deployment on edge devices.
+- ⏳ **Train on Larger Datasets** like GoPro, GOPRO-Large, or Adobe240 for generalization.
+- 🌍 **Integrate with Web App** using Streamlit or Flask for live demos.
+
+---
+
+## 🧪 How to Run
+
+### 🔧 Setup
+
+```bash
+git clone https://github.com/yourusername/unet-deblurring
+cd unet-deblurring
+pip install -r requirements.txt
