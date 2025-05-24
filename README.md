@@ -1,4 +1,4 @@
-# 🧼 Image Restoration Using U-Net for Deblurring Distorted Images
+# 🧼 Image Deblurring 
 
 ## 📌 Overview
 
