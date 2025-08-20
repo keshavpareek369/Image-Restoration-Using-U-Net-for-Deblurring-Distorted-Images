@@ -27,7 +27,7 @@ This project focuses on restoring sharpness and fine details in **distorted or b
 
 ### 🟠 CNN (Baseline)
 
-- **Architecture:** 5 Conv2D layers with ReLU, MaxPool, and Upsampling.
+- **Architecture:** Conv2D layers with ReLU.
 - **Problem:** Could not reconstruct high-frequency textures or edges.
 - **Average PSNR:** 24.84  
 - **Total Parameters:** 83,715 (~83K)  
